@@ -65,5 +65,5 @@ ypred_bst = bst.predict(dtest,ntree_limit=bst.best_iteration)
 
 test['Crop_Damage'] = ypred_bst
 
-test.to_csv('submit3.csv',columns=['ID','Crop_Damage'],index=False)
+test.to_csv('submission/submit3.csv',columns=['ID','Crop_Damage'],index=False)
 
