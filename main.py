@@ -1,39 +1,31 @@
 
-# coding: utf-8
-
-# In[1]:
-
+'''
+AV - Last man Standing hack
+'''
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import  metrics
 from sklearn.cross_validation import train_test_split
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.cross_validation import KFold
 import xgboost as xgb
 
-
-# In[2]:
-
+# Load data
 train = pd.read_csv('data/Train.csv')
 test = pd.read_csv('data/Test.csv')
 
-
-# In[3]:
+# Imputing with -1
 
 train = train.fillna(-1)
 test = test.fillna(-1)
 
-
-# In[4]:
+# Model Parameters
 
 num_rounds = 120
 parm = { 'objective':"multi:softmax",'booster':"gbtree",'eval_metric':"merror",'num_class':3,'max_depth':6,'min_child_weight':50,'eta':0.2,'seed':88888 }
 plst = parm.items()
 
-
-# In[5]:
-
+# Label
 train_y = np.array(train['Crop_Damage'])
 
 ## Creating the IDVs from the train and test dataframe ##
@@ -43,7 +35,7 @@ test_X = test.copy()
 train_X = np.array( train_X.drop(['Crop_Damage','ID'],axis=1) )
 
 
-# In[6]:
+# KFold implementation
 
 a = np.array([])
 kfolds = KFold(train_X.shape[0], n_folds=6)
@@ -60,8 +52,7 @@ for dev_index, val_index in kfolds:
     print "Accuracy = %.7f" % (res)
 print "Overall Mean Accuracy = %.7f" % (np.mean(a))
 
-
-# In[15]:
+# Building Model
 
 print "Building XGB"
 y = train['Crop_Damage'].values
@@ -70,19 +61,9 @@ dtest = xgb.DMatrix(test.drop(['ID'],axis=1))
 bst = xgb.train( plst,dtrain, num_rounds)
 ypred_bst = bst.predict(dtest,ntree_limit=bst.best_iteration)
 
-
-# In[16]:
-
-ypred_bst
-
-
-# In[17]:
+# Submission CSV
 
 test['Crop_Damage'] = ypred_bst
 
 test.to_csv('submit3.csv',columns=['ID','Crop_Damage'],index=False)
-
-
-# In[ ]:
-
 
